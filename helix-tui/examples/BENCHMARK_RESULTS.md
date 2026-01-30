@@ -1,57 +1,57 @@
-# Cell Operations (10k iterations)
+# Benchmark
 
-| Operation          | String  | CompactString | SmartString |
-|--------------------|---------|---------------|-------------|
-| `set_symbol('x')`  | 133µs   | 5.0µs         | 5.1µs       |
-| `set_symbol('界')` | 129µs   | 4.9µs         | 24µs        |
-| `set_symbol('🎉')` | 143µs   | 5.0µs         | 6.4µs       |
-| `set_char('x')`    | 142µs   | 4.9µs         | 5.1µs       |
-| `set_char('界')`   | 143µs   | 6.0µs         | 6.1µs       |
-| `reset()`          | 137µs   | 14µs          | 10µs        |
-| `Cell::default()`  | 141µs   | 11µs          | 10µs        |
+Command: `cargo run -p helix-tui --example buffer_benchmark --release --no-default-features [--features X]`
 
-# Buffer Small (80×24 = 1,920 cells)
+### Cell Operations (10k iterations)
 
-| Operation        | String | CompactString | SmartString |
-|------------------|--------|---------------|-------------|
-| `Buffer::empty()`| 551ms  | 45ms          | 46ms        |
-| `reset()`        | 238ms  | 19ms          | 18ms        |
-| fill             | 239ms  | 108ms         | 112ms       |
-| diff (identical) | 128ms  | 128ms         | 140ms       |
-| full cycle       | 608ms  | 254ms         | 266ms       |
+| Operation          | String | CompactString | SmartString |
+|--------------------|--------|---------------|-------------|
+| `set_symbol('x')`  | 9µs    | 5µs           | 5µs         |
+| `set_symbol('界')` | 10µs   | 5µs           | 24µs        |
+| `set_symbol('🎉')` | 7µs    | 5µs           | 6µs         |
+| `set_char('x')`    | 6µs    | 5µs           | 5µs         |
+| `set_char('界')`   | 8µs    | 5µs           | 6µs         |
+| `reset()`          | 15µs   | 11µs          | 10µs        |
+| `Cell::default()`  | 117µs  | 10µs          | 10µs        |
 
-# Buffer Medium (120×40 = 4,800 cells)
+### Buffer Small (80×24 = 1,920 cells)
 
 | Operation        | String | CompactString | SmartString |
 |------------------|--------|---------------|-------------|
-| `Buffer::empty()`| 1.33s  | 101ms         | 106ms       |
-| `reset()`        | 612ms  | 44ms          | 50ms        |
-| fill             | 395ms  | 180ms         | 185ms       |
-| diff (identical) | 301ms  | 323ms         | 349ms       |
-| full cycle       | 1.33s  | 569ms         | 584ms       |
+| `Buffer::empty()`| 550ms  | 47ms          | 45ms        |
+| `reset()`        | 17ms   | 19ms          | 20ms        |
+| fill             | 104ms  | 114ms         | 117ms       |
+| diff (identical) | 119ms  | 137ms         | 143ms       |
+| full cycle       | 250ms  | 262ms         | 276ms       |
 
-# Buffer Large (200×50 = 10,000 cells)
+### Buffer Medium (120×40 = 4,800 cells)
 
 | Operation        | String | CompactString | SmartString |
 |------------------|--------|---------------|-------------|
-| `Buffer::empty()`| 2.82s  | 217ms         | 225ms       |
-| `reset()`        | 1.29s  | 93ms          | 104ms       |
-| fill             | 502ms  | 222ms         | 233ms       |
-| diff (identical) | 627ms  | 672ms         | 719ms       |
-| full cycle       | 2.43s  | 1.03s         | 1.07s       |
+| `Buffer::empty()`| 1.34s  | 104ms         | 109ms       |
+| `reset()`        | 53ms   | 46ms          | 50ms        |
+| fill             | 175ms  | 181ms         | 196ms       |
+| diff (identical) | 299ms  | 330ms         | 345ms       |
+| full cycle       | 538ms  | 562ms         | 600ms       |
 
-# Summary
+### Buffer Large (200×50 = 10,000 cells)
 
-| Operation         | CompactString   | SmartString     |
-|-------------------|-----------------|-----------------|
-| `Buffer::empty()` | **13× faster**  | **13× faster**  |
-| `reset()`         | **13× faster**  | **12× faster**  |
-| `Cell::default()` | **13× faster**  | **14× faster**  |
-| full cycle        | **2.3× faster** | **2.3× faster** |
+| Operation        | String | CompactString | SmartString |
+|------------------|--------|---------------|-------------|
+| `Buffer::empty()`| 2.77s  | 213ms         | 225ms       |
+| `reset()`        | 110ms  | 95ms          | 105ms       |
+| fill             | 224ms  | 227ms         | 240ms       |
+| diff (identical) | 625ms  | 684ms         | 725ms       |
+| full cycle       | 967ms  | 1.02s         | 1.07s       |
 
-CompactString and SmartString perform similarly. Both eliminate heap allocations
-for small strings (up to 24 bytes for SmartString, 24 for CompactString).
-Terminal cell symbols are 1-4 bytes, so they always fit inline.
+### Summary
 
-SmartString is slightly slower on CJK `set_symbol('界')` due to its encoding.
-CompactString is slightly slower on `reset()`. Overall difference is negligible.
+| Operation         | CompactString   | SmartString        |
+|-------------------|-----------------|--------------------|
+| `Cell::default()` | **12× faster**  | **12× faster**     |
+| `Buffer::empty()` | **13× faster**  | **12× faster**     |
+| `reset()`         | ~same           | ~same              |
+| `set_symbol()`    | ~same           | ~same (except CJK) |
+| fill              | ~same           | ~same              |
+| diff              | 9% slower       | 14% slower         |
+| full cycle        | 5% slower       | 10% slower         |

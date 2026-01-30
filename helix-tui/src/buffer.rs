@@ -26,12 +26,33 @@ pub struct Cell {
 
 impl Cell {
     /// Set the cell's grapheme
+    /// 
+    /// For `String` use `clear()` + `push_str()` to reuse heap allocation
+    /// For SSO types use `from()` which is faster
+    #[cfg(not(any(feature = "smartstring-symbol", feature = "compactstring-symbol")))]
+    pub fn set_symbol(&mut self, symbol: &str) -> &mut Cell {
+        self.symbol.clear();
+        self.symbol.push_str(symbol);
+        self
+    }
+
+    /// Set the cell's grapheme
+    #[cfg(any(feature = "smartstring-symbol", feature = "compactstring-symbol"))]
     pub fn set_symbol(&mut self, symbol: &str) -> &mut Cell {
         self.symbol = Symbol::from(symbol);
         self
     }
 
     /// Set the cell's grapheme to a [char]
+    #[cfg(not(any(feature = "smartstring-symbol", feature = "compactstring-symbol")))]
+    pub fn set_char(&mut self, ch: char) -> &mut Cell {
+        self.symbol.clear();
+        self.symbol.push(ch);
+        self
+    }
+
+    /// Set the cell's grapheme to a [char]
+    #[cfg(any(feature = "smartstring-symbol", feature = "compactstring-symbol"))]
     pub fn set_char(&mut self, ch: char) -> &mut Cell {
         let mut buf = [0u8; 4];
         let s: &str = ch.encode_utf8(&mut buf);
@@ -82,6 +103,22 @@ impl Cell {
     }
 
     /// Resets the cell to a default blank state
+    ///
+    /// For `String`: resets fields individually to reuse heap allocation
+    /// For SSO types: uses `*self = default()` which is faster
+    #[cfg(not(any(feature = "smartstring-symbol", feature = "compactstring-symbol")))]
+    pub fn reset(&mut self) {
+        self.symbol.clear();
+        self.symbol.push(' ');
+        self.fg = Color::Reset;
+        self.bg = Color::Reset;
+        self.underline_color = Color::Reset;
+        self.underline_style = UnderlineStyle::Reset;
+        self.modifier = Modifier::empty();
+    }
+
+    /// Resets the cell to a default blank state
+    #[cfg(any(feature = "smartstring-symbol", feature = "compactstring-symbol"))]
     pub fn reset(&mut self) {
         *self = Self::default();
     }
