@@ -1586,6 +1586,7 @@ dependencies = [
  "helix-view",
  "log",
  "once_cell",
+ "smartstring",
  "termina",
  "termini",
  "unicode-segmentation",
