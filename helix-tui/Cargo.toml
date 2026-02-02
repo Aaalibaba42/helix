@@ -12,14 +12,22 @@ repository.workspace = true
 homepage.workspace = true
 
 [features]
-default = ["termina", "crossterm"]
+default = ["termina", "crossterm", "string-symbol"]
+string-symbol = []
+compact-str-symbol = ["dep:compact_str"]
+smartstring-symbol = ["dep:smartstring"]
+arraystring-4-symbol = ["dep:arrayvec"]
+arraystring-20-symbol = ["dep:arrayvec"]
 
 [dependencies]
 helix-view = { path = "../helix-view", features = ["term"] }
 helix-core = { path = "../helix-core" }
 
+arrayvec = { workspace = true, optional = true }
 bitflags.workspace = true
 cassowary = "0.3"
+compact_str = { workspace = true, optional = true }
+smartstring = { workspace = true, optional = true }
 unicode-segmentation.workspace = true
 termina = { workspace = true, optional = true }
 termini = "1.0"

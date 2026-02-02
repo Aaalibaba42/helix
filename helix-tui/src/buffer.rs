@@ -6,10 +6,21 @@ use unicode_segmentation::UnicodeSegmentation;
 
 use helix_view::graphics::{Color, Modifier, Rect, Style, UnderlineStyle};
 
+#[cfg(feature = "compact-str-symbol")]
+pub use compact_str::CompactString as Symbol;
+#[cfg(feature = "string-symbol")]
+pub type Symbol = String;
+#[cfg(feature = "smartstring-symbol")]
+pub type Symbol = smartstring::SmartString<smartstring::LazyCompact>;
+#[cfg(feature = "arraystring-4-symbol")]
+pub type Symbol = arrayvec::ArrayString<4>;
+#[cfg(feature = "arraystring-20-symbol")]
+pub type Symbol = arrayvec::ArrayString<20>;
+
 /// One cell of the terminal. Contains one stylized grapheme.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Cell {
-    pub symbol: String,
+    pub symbol: Symbol,
     pub fg: Color,
     pub bg: Color,
     pub underline_color: Color,
@@ -18,15 +29,54 @@ pub struct Cell {
 }
 
 impl Cell {
+    #[cfg(any(
+        feature = "string-symbol",
+        feature = "compact-str-symbol",
+        feature = "smartstring-symbol"
+    ))]
     #[must_use]
     pub fn new(symbol: &str) -> Self {
         Self {
-            symbol: symbol.to_string(),
+            symbol: Symbol::from(symbol),
+            ..Default::default()
+        }
+    }
+
+    #[cfg(any(feature = "arraystring-4-symbol", feature = "arraystring-20-symbol"))]
+    #[must_use]
+    pub fn new(symbol: &str) -> Self {
+        Self {
+            symbol: arrayvec::ArrayString::from(symbol).unwrap(),
             ..Default::default()
         }
     }
 
     /// Set the cell's grapheme
+    #[cfg(feature = "string-symbol")]
+    pub fn set_symbol(&mut self, symbol: &str) -> &mut Cell {
+        self.symbol.clear();
+        self.symbol.push_str(symbol);
+        self
+    }
+
+    /// Set the cell's grapheme
+    #[cfg(feature = "compact-str-symbol")]
+    pub fn set_symbol(&mut self, symbol: &str) -> &mut Cell {
+        self.symbol.clear();
+        self.symbol.push_str(symbol);
+        self
+    }
+
+    /// Set the cell's grapheme
+    #[cfg(feature = "smartstring-symbol")]
+    pub fn set_symbol(&mut self, symbol: &str) -> &mut Cell {
+        self.symbol.clear();
+        self.symbol.push_str(symbol);
+        self
+    }
+
+    /// Set the cell's grapheme
+    #[cfg(any(feature = "arraystring-4-symbol", feature = "arraystring-20-symbol"))]
     pub fn set_symbol(&mut self, symbol: &str) -> &mut Cell {
         self.symbol.clear();
         self.symbol.push_str(symbol);
@@ -34,6 +84,31 @@ impl Cell {
     }
 
     /// Set the cell's grapheme to a [char]
+    #[cfg(feature = "string-symbol")]
+    pub fn set_char(&mut self, ch: char) -> &mut Cell {
+        self.symbol.clear();
+        self.symbol.push(ch);
+        self
+    }
+
+    /// Set the cell's grapheme to a [char]
+    #[cfg(feature = "compact-str-symbol")]
+    pub fn set_char(&mut self, ch: char) -> &mut Cell {
+        self.symbol.clear();
+        self.symbol.push(ch);
+        self
+    }
+
+    /// Set the cell's grapheme to a [char]
+    #[cfg(feature = "smartstring-symbol")]
+    pub fn set_char(&mut self, ch: char) -> &mut Cell {
+        self.symbol.clear();
+        self.symbol.push(ch);
+        self
+    }
+
+    /// Set the cell's grapheme to a [char]
+    #[cfg(any(feature = "arraystring-4-symbol", feature = "arraystring-20-symbol"))]
     pub fn set_char(&mut self, ch: char) -> &mut Cell {
         self.symbol.clear();
         self.symbol.push(ch);
@@ -83,6 +158,7 @@ impl Cell {
     }
 
     /// Resets the cell to a default blank state
+    #[cfg(feature = "string-symbol")]
     pub fn reset(&mut self) {
         self.symbol.clear();
         self.symbol.push(' ');
@@ -92,12 +168,77 @@ impl Cell {
         self.underline_style = UnderlineStyle::Reset;
         self.modifier = Modifier::empty();
     }
+
+    /// Resets the cell to a default blank state
+    #[cfg(feature = "compact-str-symbol")]
+    pub fn reset(&mut self) {
+        self.symbol.clear();
+        self.symbol.push(' ');
+        self.fg = Color::Reset;
+        self.bg = Color::Reset;
+        self.underline_color = Color::Reset;
+        self.underline_style = UnderlineStyle::Reset;
+        self.modifier = Modifier::empty();
+    }
+
+    /// Resets the cell to a default blank state
+    #[cfg(feature = "smartstring-symbol")]
+    pub fn reset(&mut self) {
+        // For fixed-size inline strings, full struct assignment is faster than field-by-field
+        *self = Self::default();
+    }
+
+    /// Resets the cell to a default blank state
+    #[cfg(any(feature = "arraystring-4-symbol", feature = "arraystring-20-symbol"))]
+    pub fn reset(&mut self) {
+        // For small fixed-size structs, full struct assignment is faster than field-by-field
+        *self = Self::default();
+    }
 }
 
 impl Default for Cell {
+    #[cfg(feature = "string-symbol")]
     fn default() -> Cell {
         Cell {
             symbol: " ".into(),
+            fg: Color::Reset,
+            bg: Color::Reset,
+            underline_color: Color::Reset,
+            underline_style: UnderlineStyle::Reset,
+            modifier: Modifier::empty(),
+        }
+    }
+
+    #[cfg(feature = "compact-str-symbol")]
+    fn default() -> Cell {
+        Cell {
+            symbol: Symbol::const_new(" "),
+            fg: Color::Reset,
+            bg: Color::Reset,
+            underline_color: Color::Reset,
+            underline_style: UnderlineStyle::Reset,
+            modifier: Modifier::empty(),
+        }
+    }
+
+    #[cfg(feature = "smartstring-symbol")]
+    fn default() -> Cell {
+        Cell {
+            symbol: " ".into(),
+            fg: Color::Reset,
+            bg: Color::Reset,
+            underline_color: Color::Reset,
+            underline_style: UnderlineStyle::Reset,
+            modifier: Modifier::empty(),
+        }
+    }
+
+    #[cfg(any(feature = "arraystring-4-symbol", feature = "arraystring-20-symbol"))]
+    fn default() -> Cell {
+        let mut symbol = arrayvec::ArrayString::new();
+        symbol.push(' ');
+        Cell {
+            symbol,
             fg: Color::Reset,
             bg: Color::Reset,
             underline_color: Color::Reset,
@@ -122,18 +263,13 @@ impl Default for Cell {
 ///
 /// let mut buf = Buffer::empty(Rect{x: 0, y: 0, width: 10, height: 5});
 /// buf[(0, 2)].set_symbol("x");
-/// assert_eq!(buf[(0, 2)].symbol, "x");
+/// assert_eq!(&*buf[(0, 2)].symbol, "x");
 /// buf.set_string(3, 0, "string", Style::default().fg(Color::Red).bg(Color::White));
-/// assert_eq!(buf[(5, 0)], Cell{
-///     symbol: String::from("r"),
-///     fg: Color::Red,
-///     bg: Color::White,
-///     underline_color: Color::Reset,
-///     underline_style: UnderlineStyle::Reset,
-///     modifier: Modifier::empty(),
-/// });
+/// let mut expected = Cell::new("r");
+/// expected.set_style(Style::default().fg(Color::Red).bg(Color::White));
+/// assert_eq!(buf[(5, 0)], expected);
 /// buf[(5, 0)].set_char('x');
-/// assert_eq!(buf[(5, 0)].symbol, "x");
+/// assert_eq!(&*buf[(5, 0)].symbol, "x");
 /// ```
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Buffer {
