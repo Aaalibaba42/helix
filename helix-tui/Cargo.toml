@@ -16,8 +16,8 @@ default = ["termina", "crossterm", "string-symbol"]
 string-symbol = []
 compact-str-symbol = ["dep:compact_str"]
 smartstring-symbol = ["dep:smartstring"]
-arraystring-4-symbol = ["dep:arrayvec"]
-arraystring-20-symbol = ["dep:arrayvec"]
+arraystring-12-symbol = ["dep:arrayvec"]
+arraystring-28-symbol = ["dep:arrayvec"]
 
 [dependencies]
 helix-view = { path = "../helix-view", features = ["term"] }

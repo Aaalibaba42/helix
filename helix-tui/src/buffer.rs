@@ -12,10 +12,10 @@ pub use compact_str::CompactString as Symbol;
 pub type Symbol = String;
 #[cfg(feature = "smartstring-symbol")]
 pub type Symbol = smartstring::SmartString<smartstring::LazyCompact>;
-#[cfg(feature = "arraystring-4-symbol")]
-pub type Symbol = arrayvec::ArrayString<4>;
-#[cfg(feature = "arraystring-20-symbol")]
-pub type Symbol = arrayvec::ArrayString<20>;
+#[cfg(feature = "arraystring-12-symbol")]
+pub type Symbol = arrayvec::ArrayString<12>;
+#[cfg(feature = "arraystring-28-symbol")]
+pub type Symbol = arrayvec::ArrayString<28>;
 
 /// One cell of the terminal. Contains one stylized grapheme.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -42,7 +42,7 @@ impl Cell {
         }
     }
 
-    #[cfg(any(feature = "arraystring-4-symbol", feature = "arraystring-20-symbol"))]
+    #[cfg(any(feature = "arraystring-12-symbol", feature = "arraystring-28-symbol"))]
     #[must_use]
     pub fn new(symbol: &str) -> Self {
         Self {
@@ -76,7 +76,7 @@ impl Cell {
     }
 
     /// Set the cell's grapheme
-    #[cfg(any(feature = "arraystring-4-symbol", feature = "arraystring-20-symbol"))]
+    #[cfg(any(feature = "arraystring-12-symbol", feature = "arraystring-28-symbol"))]
     pub fn set_symbol(&mut self, symbol: &str) -> &mut Cell {
         self.symbol.clear();
         self.symbol.push_str(symbol);
@@ -108,7 +108,7 @@ impl Cell {
     }
 
     /// Set the cell's grapheme to a [char]
-    #[cfg(any(feature = "arraystring-4-symbol", feature = "arraystring-20-symbol"))]
+    #[cfg(any(feature = "arraystring-12-symbol", feature = "arraystring-28-symbol"))]
     pub fn set_char(&mut self, ch: char) -> &mut Cell {
         self.symbol.clear();
         self.symbol.push(ch);
@@ -189,7 +189,7 @@ impl Cell {
     }
 
     /// Resets the cell to a default blank state
-    #[cfg(any(feature = "arraystring-4-symbol", feature = "arraystring-20-symbol"))]
+    #[cfg(any(feature = "arraystring-12-symbol", feature = "arraystring-28-symbol"))]
     pub fn reset(&mut self) {
         // For small fixed-size structs, full struct assignment is faster than field-by-field
         *self = Self::default();
@@ -233,7 +233,7 @@ impl Default for Cell {
         }
     }
 
-    #[cfg(any(feature = "arraystring-4-symbol", feature = "arraystring-20-symbol"))]
+    #[cfg(any(feature = "arraystring-12-symbol", feature = "arraystring-28-symbol"))]
     fn default() -> Cell {
         let mut symbol = arrayvec::ArrayString::new();
         symbol.push(' ');

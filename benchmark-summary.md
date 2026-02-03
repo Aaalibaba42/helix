@@ -1,33 +1,33 @@
 Performance gain / loss compared to `String` with `CompactString`,
-`SmartString`, `ArrayString<4>`, `ArrayString<20>` respectively, using
+`SmartString`, `ArrayString<12>`, `ArrayString<28>` respectively, using
 criterion data from the #15229 benchmarks.
 
 You may check out the benchmarks and the raw json results on [my branch](https://github.com/Aaalibaba42/helix/tree/tui-bench-on-string-cell-type).
 
-| Benchmark          | compactstring | smartstring | arraystr 4 | arraystr 20 |
-|--------------------|---------------|-------------|------------|-------------|
-| **buffer_diff_**   |               |             |            |             |
-| emoji/16           | +8.5%         | +12.2%      | DNF        | +0.6%       |
-| emoji/64           | +11.8%        | +13.0%      | DNF        | +0.6%       |
-| full_change/16     | +10.8%        | +12.7%      | +0.3%      | +0.2%       |
-| full_change/64     | +14.1%        | +15.5%      | +0.9%      | -0.7%       |
-| full_change/128    | +12.5%        | +13.1%      | -2.3%      | -1.2%       |
-| multi_width/16     | +8.9%         | +10.9%      | -2.7%      | -1.5%       |
-| multi_width/64     | +11.6%        | +15.4%      | -2.1%      | +0.2%       |
-| no_change/16       | +12.0%        | +14.8%      | +0.7%      | +2.1%       |
-| no_change/64       | +11.0%        | +12.7%      | +1.0%      | +2.2%       |
-| no_change/128      | +10.1%        | +11.7%      | -1.2%      | +0.0%       |
-| partial_change/16  | +9.5%         | +10.6%      | -0.7%      | -0.7%       |
-| partial_change/64  | +8.3%         | +10.7%      | -0.2%      | -0.1%       |
-| partial_change/128 | +8.3%         | +10.6%      | +0.0%      | +0.3%       |
-| **buffer_empty_**  |               |             |            |             |
-| 16                 | **-77.4%**    | **-76.4%**  | **-93.8%** | **-94.0%**  |
-| 64                 | **-78.9%**    | **-77.5%**  | **-94.6%** | **-94.6%**  |
-| 255                | **-73.2%**    | **-71.9%**  | **-94.4%** | **-86.0%**  |
-| **buffer_filled_** |               |             |            |             |
-| 16                 | **-79.5%**    | **-78.4%**  | **-94.2%** | **-91.8%**  |
-| 64                 | **-80.3%**    | **-79.5%**  | **-94.9%** | **-92.3%**  |
-| 255                | **-74.9%**    | **-74.5%**  | **-94.7%** | **-85.2%**  |
+| Benchmark          | compactstring | smartstring | arraystr 12 | arraystr 28 |
+|--------------------|---------------|-------------|-------------|-------------|
+| **buffer_diff_**   |               |             |             |             |
+| emoji/16           | +11.5%        | +15.9%      | DNF         | +2.9%       |
+| emoji/64           | +11.9%        | +14.3%      | DNF         | +1.2%       |
+| full_change/16     | +12.3%        | +14.4%      | +1.8%       | -0.7%       |
+| full_change/64     | +14.4%        | +14.9%      | -0.4%       | -0.8%       |
+| full_change/128    | +12.6%        | +12.9%      | -2.9%       | -0.3%       |
+| multi_width/16     | +9.2%         | +11.4%      | -0.6%       | -1.5%       |
+| multi_width/64     | +10.1%        | +15.8%      | -1.0%       | -2.3%       |
+| no_change/16       | +7.3%         | +12.2%      | -2.0%       | -4.2%       |
+| no_change/64       | +8.3%         | +11.5%      | -2.1%       | -4.4%       |
+| no_change/128      | +9.0%         | +13.6%      | -0.9%       | -3.4%       |
+| partial_change/16  | +9.6%         | +12.3%      | -1.6%       | -2.4%       |
+| partial_change/64  | +9.1%         | +13.9%      | +0.8%       | -1.5%       |
+| partial_change/128 | +9.6%         | +13.0%      | -0.5%       | -2.5%       |
+| **buffer_empty_**  |               |             |             |             |
+| 16                 | **-79.2%**    | **-78.3%**  | **-94.5%**  | **-94.4%**  |
+| 64                 | **-80.9%**    | **-80.0%**  | **-95.4%**  | **-94.6%**  |
+| 255                | **-74.3%**    | **-73.5%**  | **-88.5%**  | **-84.3%**  |
+| **buffer_filled_** |               |             |             |             |
+| 16                 | **-80.1%**    | **-78.9%**  | **-93.3%**  | **-91.3%**  |
+| 64                 | **-81.0%**    | **-80.3%**  | **-94.1%**  | **-92.2%**  |
+| 255                | **-75.2%**    | **-74.4%**  | **-87.9%**  | **-83.0%**  |
 
 > [!WARNING]
 arraystr 4 (ArrayString<4>) is not actually recommended, because unicode can
